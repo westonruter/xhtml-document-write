@@ -20,19 +20,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 $Id: xhtml-document-write.js 7 2008-05-15 20:15:17Z westonruter $
 Copyright 2008, Shepherd Interactive. All rights reserved.
 -->
-<!DOCTYPE html>
+<!DOCTYPE html><!-- XHTML5 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>XHTML document.write() Support Demo</title>
 		<script type="text/javascript" src="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js"></script>
+		<style type="text/css">
+		#result {
+			background-color:#C0FFC0;
+			padding:5px;
+			vertical-align:middle;
+		}
+		#result.loading {
+			font-style:italic;
+			color:gray;
+			background-color:transparent;
+		}
+		</style>
+	</head>
+	<body>
+		<h1>XHTML <code>document.write()</code> Support Demo</h1>
+		
+		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzeled by the power and accuracy of their
+		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
+		by their <a href="http://code.google.com/apis/ajaxlibs/">AJAX Libraries API</a>. The only issue I have with their APIs is that the fundamental 
+		<code>google.load()</code> function uses <code>document.write()</code> to ouput the necessary <code>script</code> elements to the DOM,
+		which doesn't even appear to be necessary since <code>google.setOnLoadCallback()</code> executes after the scripts are loaded without using <code>document.write()</code>
+		(but instead appended document with DOM methods). And the reason why using <code>document.write()</code> is bad, of course, is that it is not available when in XHTML.</p>
+		
+		<p>But there is a solution! You can use the Google AJAX APIs and other libraries that use <code>document.write()</code> to include <em>external scripts and stylesheets</em>
+		if you define and implement <code>document.write()</code> yourself. This is exactly what <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> accomplishes,
+		as the following demonstrates.</p>
+	
+		<hr />
+		
+		<p>The phrase "Hello world!" translated into Spanish via Google <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
+		then morphed using <a href="http://jquery.com/">jQuery</a>: <span id="result" class='loading'>Loading...</span></p>
+	
+		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
+		By way of demonstration, jQuery is, on the other hand, loaded from a raw <code>script</code> element that is written onto the document using <code>document.write()</code>.
+		Its completed load-state is detected with an anonymous polling function such as:
+		</p>
+
+<pre><code>(function(){
+    if(window.jQuery){
+        //ready to use jQuery!
+    }
+    else
+        setTimeout(arguments.callee, 10);
+})();</code></pre>
+	
+		<p>This document may be served as either <code>application/xhtml+xml</code> or <code>text/html</code> (i.e. for IE).</p>
+	
+		<hr />
+		<address>
+			<a href="http://weston.ruter.net/">Weston Ruter</a>, <a href="http://www.shepherd-interactive.com/">Shepherd Interactive</a><br />
+			May 2008
+		</address>
+		
+		
 		
 		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 		<script type="text/javascript">
 		//<![CDATA[
 		google.load('language', 1);
 		google.setOnLoadCallback(function() {
-			google.language.translate("Hello World!", "", "es", function(result){
-				alert(result.translation)
+			google.language.translate("Hello world!", "", "es", function(result){
+				var span = document.getElementById('result');
+				span.removeChild(span.firstChild);
+				span.appendChild(document.createTextNode(result.translation));
+				span.className = "";
 			});
 		});
 		//]]>
@@ -51,27 +108,13 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 			//Test for objects that indicate that the necessary scripts have all loaded
 			if(window.jQuery){
 				$("#result").animate({
-					backgroundColor: "#C0FFC0",
 					fontSize: "2em"
 				});
 			}
 			else
-				window.setTimeout(arguments.callee, 10);
+				setTimeout(arguments.callee, 10);
 		})();
 		//]]>
 		</script>
-	</head>
-	<body>
-		<h1>XHTML <code>document.write()</code> Support Demo</h1>
-		
-		<p>The phrase "Hello world!" translated into Spanish via Google AJAX Language API and
-		then morphed using jQuery: <span id="result">Loading...</span></p>
-		
-		
-		<hr />
-		<address>
-			<a href="http://weston.ruter.net/">Weston Ruter</a>, <a href="http://www.shepherd-interactive.com/">Shepherd Interactive</a><br />
-			May 2008
-		</address>
 	</body>
 </html>

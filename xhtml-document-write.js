@@ -1,6 +1,7 @@
 /* 
- * XHTML documment.write() Support (v1.0)
- *  <http://code.google.com/p/shepherd-interactive/wiki/XHTMLDocumentWrite>
+ * XHTML documment.write() Support (v1.0) - Parses provided (X)HTML string for
+ *  external scripts and stylesheets and appends them to the document via DOM methods.
+ *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/demo.xhtml>
  *  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
  * 
  * This program is free software: you can redistribute it and/or modify
