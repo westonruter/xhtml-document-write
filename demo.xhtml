@@ -58,7 +58,7 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 	
 		<hr />
 		
-		<p>The phrase “<strong>Hello world!</strong>” (loaded from an <a href="sourceText.js">external script</a>) is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
+		<p>The phrase “<strong>Hello world!</strong>” (loaded from an <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>) is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
 		then animated using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
 	
 		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
@@ -110,7 +110,7 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		//<![CDATA[
 		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
 		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
-		document.write("\u003Cscript type='text/javascript' src='sourceText.js'\u003E\u003C/"+"script\u003E");
+		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
 		//]]>
 		</script>
 	
