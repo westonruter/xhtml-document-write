@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+XHTML documment.write() Support (v1.0)
+ <http://code.google.com/p/shepherd-interactive/wiki/XHTMLDocumentWrite>
+ by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+$Id: xhtml-document-write.js 7 2008-05-15 20:15:17Z westonruter $
+Copyright 2008, Shepherd Interactive. All rights reserved.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>XHTML document.write() Support Demo</title>
+		<script type="text/javascript" src="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js"></script>
+		
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+		//<![CDATA[
+		google.load('language', 1);
+		google.setOnLoadCallback(function() {
+			google.language.translate("Hello World!", "", "es", function(result){
+				alert(result.translation)
+			});
+		});
+		//]]>
+		</script>
+		
+		
+		<script type="text/javascript">
+		//<![CDATA[
+		//The following, of course, could be loaded with google.load('jquery', 1) but this just demonstrates how to
+		//  detect when a script (in this case, jQuery) has been asyncronously loaded if the library does not support
+		//  something like google.setOnLoadCallback()
+		document.write("<"+"script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js'></"+"script>");
+		
+		//This anonymous polling function can be used to check every 10ms whether the necessary scripts have been loaded
+		(function(){
+			//Test for objects that indicate that the necessary scripts have all loaded
+			if(window.jQuery){
+				$("#result").animate({
+					backgroundColor: "#C0FFC0",
+					fontSize: "2em"
+				});
+			}
+			else
+				window.setTimeout(arguments.callee, 10);
+		})();
+		//]]>
+		</script>
+	</head>
+	<body>
+		<h1>XHTML <code>document.write()</code> Support Demo</h1>
+		
+		<p>The phrase "Hello world!" translated into Spanish via Google AJAX Language API and
+		then morphed using jQuery: <span id="result">Loading...</span></p>
+		
+		
+		<hr />
+		<address>
+			<a href="http://weston.ruter.net/">Weston Ruter</a>, <a href="http://www.shepherd-interactive.com/">Shepherd Interactive</a><br />
+			May 2008
+		</address>
+	</body>
+</html>
