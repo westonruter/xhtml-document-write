@@ -24,12 +24,19 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>XHTML document.write() Support Demo</title>
+	</head>
+	<body>
+		<h1>XHTML <code>document.write()</code> Support Demo</h1>
+		
+		
+		<!-- BEGIN *********************************-->
 		<script type="text/javascript" src="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js"></script>
+		
 		<style type="text/css">
 		#demo-result {
 			background-color:#C0FFC0;
-			padding:5px;
 			vertical-align:middle;
+			font-weight:bold;
 		}
 		#demo-result.loading {
 			font-style:italic;
@@ -37,12 +44,7 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 			background-color:transparent;
 		}
 		</style>
-	</head>
-	<body>
-		<h1>XHTML <code>document.write()</code> Support Demo</h1>
 		
-		
-		<!-- BEGIN *********************************-->
 		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzeled by the power and accuracy of their
 		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
 		by their <a href="http://code.google.com/apis/ajaxlibs/">AJAX Libraries API</a>. The only issue I have with their APIs is that the fundamental 
@@ -57,7 +59,7 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		<hr />
 		
 		<p>The phrase “<strong>Hello world!</strong>” (loaded from an <a href="sourceText.js">external script</a>) is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
-		then morphed using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
+		then animated using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
 	
 		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
 		The completed load-state of the <code>sourceText</code> variable is then detected with this anonymous polling function:
@@ -90,7 +92,9 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 						span.className = "";
 						
 						$("#demo-result").animate({
-							fontSize: "2em"
+							//fontSize: "2em",
+							paddingLeft:"20px",
+							paddingRight:"20px"
 						});
 					}
 					else //recursibe call to check again
