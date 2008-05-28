@@ -1,0 +1,1 @@
+var sourceText = "Hello world!";
