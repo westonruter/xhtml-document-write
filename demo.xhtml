@@ -78,6 +78,13 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 		<script type="text/javascript">
 		//<![CDATA[
+		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
+		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
+		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
+		//]]>
+		</script>
+		<script type="text/javascript">
+		//<![CDATA[
 		google.load('language', 1);
 		if(!window.jQuery)
 			google.load('jquery', 1);
@@ -106,13 +113,6 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		</script>
 		
 		
-		<script type="text/javascript">
-		//<![CDATA[
-		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
-		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
-		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
-		//]]>
-		</script>
 	
 		<!-- END *********************************-->
 	
