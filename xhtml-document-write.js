@@ -46,7 +46,7 @@ catch(e){
 	//Providing a more simple HTML parser because John Resig's seems to not work in Safari 3
 	if(typeof HTMLParser == 'undefined'){
 		function HTMLParser(html, handler){
-			if(html == '</iframe>') //temporary hack to get AdSense to work while getting full HTMLParser to work
+			if(/^\s*<\//.test(html)) //temporary hack to get AdSense to work while getting full HTMLParser to work
 				return;
 			var elMatches = html.match(/<(\w+)([^>]*?)\/?>(?:\s*<\/\1>)?\s*$/i);
 			if(!elMatches)
