@@ -1,6 +1,8 @@
 /* 
- * XHTML documment.write() Support (v1.0) - Parses provided (X)HTML string for
- *  external scripts and stylesheets and appends them to the document via DOM methods.
+ * XHTML documment.write() Support (v1.1) - Parses string argument into DOM nodes
+ *  appends them to the document immediately after the last loaded SCRIPT element
+ *  or if the document has been loaded, then it appends SCRIPT and LINK elements
+ *  to the HEAD and all other elements to the BODY.
  *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/demo.xhtml>
  *  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
  * 
@@ -28,18 +30,75 @@ try {
 }
 catch(e){
 	(function(){
-	var head = document.getElementsByTagName('head')[0];
-	document.write = function(str){
-		var elMatches = str.match(/<(script|link)([^>]*?)\/?>(?:\s*<\/\1>)?\s*$/i);
-		if(!elMatches)
-			throw Error("document.write() compatibility function for XHTML currently only allows external SCRIPT and LINK elements. You provided: " + str);
-		var el = document.createElement(elMatches[1]);
-		var attrMatches = elMatches[2].match(/(\w+)=('|")(.*?)\2/g);
-		for(var i = 0; i < attrMatches.length; i++){
-			var attrParts = attrMatches[i].match(/(.+?)=('|")(.*?)\2/);
-			el.setAttribute(attrParts[1], attrParts[3]);
-		}
-		head.appendChild(el);
+	//Keep track of when the document has been loaded
+	var isDOMLoaded = false;
+	function markLoaded(){
+		isDOMLoaded = true;
 	}
+	if(document.addEventListener)
+		document.addEventListener('DOMContentLoaded', markLoaded, false);
+	if(window.addEventListener)
+		window.addEventListener('load', markLoaded, false);
+	if(window.attachEvent)
+		window.attachEvent('onload', markLoaded);
+		
+	var htmlns = 'http://www.w3.org/1999/xhtml';
+	
+	//Providing a more simple HTML parser because John Resig's seems to not work in Safari 3
+	if(typeof HTMLParser == 'undefined'){
+		function HTMLParser(html, handler){
+			if(html == '</iframe>') //temporary hack to get AdSense to work while getting full HTMLParser to work
+				return;
+			var elMatches = html.match(/<(\w+)([^>]*?)\/?>(?:\s*<\/\1>)?\s*$/i);
+			if(!elMatches)
+				throw Error("In order to use this document.write() XHTML implementation with elements other than SCRIPT and LINK, you must include John Resig's HTML Parser library. String provided: " + html);
+			var tagName = elMatches[1];
+			var attrMatches = elMatches[2].match(/(\w+)=('|")(.*?)\2/g);
+			var attrs = [];
+			for(var i = 0; i < attrMatches.length; i++){
+				var attrParts = attrMatches[i].match(/(.+?)=('|")(.*?)\2/);
+				attrs.push({name:attrParts[1], value:attrParts[3]})
+			}
+			if(handler.start)
+				handler.start(tagName, attrs);
+		}
+	}
+
+	
+	document.write = function(htmlStr){
+		var head = document.getElementsByTagNameNS(htmlns, 'head')[0];
+		var body = document.getElementsByTagNameNS(htmlns, 'body')[0];
+		
+		//Find where new elements will be placed
+		var parentNode = body ? body : head;
+		var refNode = null;
+		if(!isDOMLoaded){
+			var scripts = document.getElementsByTagNameNS(htmlns, 'script');
+			refNode = scripts[scripts.length-1];
+			parentNode = refNode.parentNode;
+		}
+		
+		HTMLParser(htmlStr, {
+			start:function(tag, attrs, unary){
+				var el = document.createElementNS(htmlns, tag);
+				for(var i = 0; i < attrs.length; i++)
+					el.setAttribute(attrs[i].name, attrs[i].value);
+				//console.info(el.namespaceURI + ' ' + el.src + ' ' + el.type)
+				parentNode.appendChild(el); //(tag == 'script' ? head : parentNode)
+				if(!unary)
+					parentNode = el;
+			},
+			end:function(tag){
+				parentNode = parentNode.parentNode;
+			},
+			chars:function(text){
+				parentNode.appendChild(document.createTextNode(text));
+			},
+			comment:function(text){
+				parentNode.appendChild(document.creatCommentNode(text));
+			}
+		});
+	}
+	
 	})();
 }

@@ -30,18 +30,23 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		
 		
 		<!-- BEGIN *********************************-->
-		<script type="text/javascript" src="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js"></script>
+		
+		<!--<script type = "text/javascript" src="htmlparser.js"></script>-->
+		<script type="text/javascript" src="xhtml-document-write.js"></script>
 		
 		<style type="text/css">
 		#demo-result {
 			background-color:#C0FFC0;
 			vertical-align:middle;
 			font-weight:bold;
+			text-decoration:none;
+			white-space:nowrap;
 		}
 		#demo-result.loading {
 			font-style:italic;
 			color:gray;
 			background-color:transparent;
+			text-decoration:blink;
 		}
 		</style>
 		
@@ -52,13 +57,40 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		which doesn't even appear to be necessary since <code>google.setOnLoadCallback()</code> executes after the scripts are loaded without using <code>document.write()</code>
 		(but instead appended document with DOM methods). And the reason why using <code>document.write()</code> is bad, of course, is that it is not available when in XHTML.</p>
 		
-		<p>But there is a solution! You can use the Google AJAX APIs and other libraries that use <code>document.write()</code> to include <em>external scripts and stylesheets</em>
-		if you define and implement <code>document.write()</code> yourself. This is exactly what <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> accomplishes,
-		as the following demonstrates.</p>
-	
-		<hr />
+		<p>Likewise, Google's AdSense program provides a great way for web authors to make get some compensation for their hard work.
+		But it too relies on <code>document.write()</code> to output the necessary <code>iframe</code> element to display the
+		advertisement. This has been <a href="http://en.wikipedia.org/wiki/AdSense#XHTML_Compatibility">well noted</a>, and a <a href="http://www.456bereastreet.com/archive/200409/content_negotiation_adsense_and_comments/">workaround</a> has been
+		developed which utilizes the an <code>object</code> element. However, there is another solution which enables AdSense to work in XHTML
+		without any HTML workaround, and which allows web authors to use the Google Ajax APIs in XHTML pages: simply define and implement
+		<code>document.write()</code> yourself, as <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> does.
+		</p>
+
+		<p>This implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes and appends them to the
+		document immediately after the requesting <code>script</code> element if the DOM has not yet been completely loaded. If the DOM has been loaded,
+		then it appends the parsed nodes to the end of the <code>body</code>. It does not yet allow arbitrary HTML markup since
+		I can't seem to get John Resig's <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a> to work in Safari 3
+		(if you include his library then this implementation will use it instead of the very-limited parser that is included in the script;
+		try out his library so you can help diagnose the issue in Safari 3). Currently the parser included is able to 
+		can output any single empty HTML element, such as <code>script</code> or <code>iframe</code>.
+		</p>
+
+		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as both <code>application/xhtml+xml</code>
+		and <code>text/html</code>, as in the case of MSIE. First what follows this paragraph is the canonical AdSense <code>script</code>
+		elements which will output an advertisement:</p>
 		
-		<p>The phrase “<strong>Hello world!</strong>” (loaded from an <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>) is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
+		<script type="text/javascript">
+		google_ad_client = "pub-0540872133321296";
+		/* 125x125, created 6/1/08 */
+		google_ad_slot = "9966627566";
+		google_ad_width = 125;
+		google_ad_height = 125;
+		</script>
+		<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+	
+		
+		<p>And to illustrate the use of the Google AJAX APIs, the phrase “<strong>Hello world!</strong>” (loaded from an
+		<a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>)
+		is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
 		then animated using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
 	
 		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
@@ -73,26 +105,23 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
         setTimeout(arguments.callee, 10);
 })();</code></pre>
 	
-		<p>This document may be served as either <code>application/xhtml+xml</code> or <code>text/html</code> (i.e. for IE).</p>
+		<!--<p>This document may be served as either <code>application/xhtml+xml</code> or <code>text/html</code> (i.e. for IE).</p>-->
 		
 		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 		<script type="text/javascript">
-		//<![CDATA[
 		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
 		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
-		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
-		//]]>
+		document.write("\u003Cscript type='text/javascript' src='sourceText.js'\u003E\u003C/"+"script\u003E");
 		</script>
 		<script type="text/javascript">
-		//<![CDATA[
 		google.load('language', 1);
 		if(!window.jQuery)
 			google.load('jquery', 1);
 		google.setOnLoadCallback(function() {
-			google.language.translate("Hello world!", "", "es", function(result){
-				//This anonymous polling function can be used to check every 10ms whether the sourceText variable has been loaded
-				(function(){
-					if(window.sourceText){
+			//This anonymous polling function can be used to check every 10ms whether the sourceText variable has been loaded
+			(function(){
+				if(window.sourceText){
+					google.language.translate("Hello world!", "", "es", function(result){
 						var span = document.getElementById('demo-result');
 						span.removeChild(span.firstChild);
 						span.appendChild(document.createTextNode(result.translation));
@@ -103,17 +132,16 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 							paddingLeft:"20px",
 							paddingRight:"20px"
 						});
-					}
-					else //recursibe call to check again
-						setTimeout(arguments.callee, 10);
-				})();
-			});
+					});
+				}
+				else //recursive call to check again
+					setTimeout(arguments.callee, 1000);
+			})();
 		});
-		//]]>
 		</script>
 		
+		<p>Please comment with any suggestions or feedback!</p>
 		
-	
 		<!-- END *********************************-->
 	
 		<hr />
