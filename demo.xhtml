@@ -50,6 +50,8 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		}
 		</style>
 		
+		<p><em style='color:red'>I'm still ironing out a few Safari issues with this implementation, so stay tuned.</em></p>
+		
 		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzled by the power and accuracy of their
 		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
 		by their <a href="http://code.google.com/apis/ajaxlibs/">AJAX Libraries API</a>. The only issue I have with their APIs is that the fundamental 
@@ -96,7 +98,6 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		google_ad_height = 125;
 		</script>
 		<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
-	
 		
 		<p>And to illustrate the use of the Google AJAX APIs, the phrase “<strong>Hello world!</strong>” (loaded from an
 		<a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>)
@@ -124,6 +125,8 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		document.write("\u003Cscript type='text/javascript' src='sourceText.js'\u003E\u003C/"+"script\u003E");
 		</script>
 		<script type="text/javascript">
+		//document.write("\u003Cb>This is the \u003Cem>Strangets\u003C/em> thing in the world!\u003C/b>");
+		
 		google.load('language', 1);
 		if(!window.jQuery)
 			google.load('jquery', 1);
