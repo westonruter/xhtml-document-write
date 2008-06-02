@@ -50,10 +50,10 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		}
 		</style>
 		
-		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzeled by the power and accuracy of their
+		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzled by the power and accuracy of their
 		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
 		by their <a href="http://code.google.com/apis/ajaxlibs/">AJAX Libraries API</a>. The only issue I have with their APIs is that the fundamental 
-		<code>google.load()</code> function uses <code>document.write()</code> to ouput the necessary <code>script</code> elements to the DOM,
+		<code>google.load()</code> function uses <code>document.write()</code> to output the necessary <code>script</code> elements to the DOM,
 		which doesn't even appear to be necessary since <code>google.setOnLoadCallback()</code> executes after the scripts are loaded without using <code>document.write()</code>
 		(but instead appended document with DOM methods). And the reason why using <code>document.write()</code> is bad, of course, is that it is not available when in XHTML.</p>
 		
@@ -64,14 +64,24 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		without any HTML workaround, and which allows web authors to use the Google Ajax APIs in XHTML pages: simply define and implement
 		<code>document.write()</code> yourself, as <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> does.
 		</p>
+	
+		<p><strong>Update:</strong> When I set out to do this, somehow I completely missed a <a href="http://ejohn.org/blog/xhtml-documentwrite-and-adsense/">solution</a>
+		developed by <a href="http://ejohn.org/">John Resig</a> (one of my biggest inspirations and JavaScript heroes).
+		My solution, however, has a couple advantages as I see it. First his solution uses some regular expression hacks to attempt to make the HTML markup well-formed enough
+		for the browser's XML parser, but as he notes, it is not very robust. Secondly, John's solution relies on <code>innerHTML</code> which causes it to completely
+		fail in Safari 2. I'm trying a different approach (although it doesn't seem to work in Safari 2 either, and I don't have real access to it).
+		<!--I am attempting, however, to have <code>document.write()</code> parse the HTML itself to create the DOM nodes.--></p>
 
-		<p>This implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes and appends them to the
+		<p>Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes and appends them to the
 		document immediately after the requesting <code>script</code> element if the DOM has not yet been completely loaded. If the DOM has been loaded,
-		then it appends the parsed nodes to the end of the <code>body</code>. It does not yet allow arbitrary HTML markup since
-		I can't seem to get John Resig's <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a> to work in Safari 3
-		(if you include his library then this implementation will use it instead of the very-limited parser that is included in the script;
-		try out his library so you can help diagnose the issue in Safari 3). Currently the parser included is able to 
-		can output any single empty HTML element, such as <code>script</code> or <code>iframe</code>.
+		then it appends the parsed nodes to the end of the <code>body</code>. I was using John's own John's <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
+		so that arbitrary HTML markup could be handled, but I can't seem to get his parser to work with the solution in Safari 3
+		(if you include his library or define a global <code>HTMLParser</code> function yourself, then this implementation will use it
+		instead of the very-limited parser that is included in the script;
+		try out his library so you can help diagnose the issue in Safari 3; and furthermore, see if you can figure out why
+		it fails in Safari 2 even without the use of <code>innerHTML</code>). Currently the parser included is able to 
+		can output any single empty or unary HTML element, such as <code>script</code> or <code>iframe</code> (so it's not practically much better
+		than John's solution as of now).
 		</p>
 
 		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as both <code>application/xhtml+xml</code>
@@ -140,7 +150,9 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		});
 		</script>
 		
-		<p>Please comment with any suggestions or feedback!</p>
+		<p>As it is, the demos work at least in <strong>Firefox 2/3</strong>, <strong>Opera 9.26</strong>, and <strong>Safari 3</strong>;
+		it currently does <em>not</em> work in Safari 2.
+		Please comment with any suggestions or feedback!</p>
 		
 		<!-- END *********************************-->
 	
