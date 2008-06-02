@@ -1,8 +1,7 @@
 /* 
  * XHTML documment.write() Support (v1.1) - Parses string argument into DOM nodes
  *  appends them to the document immediately after the last loaded SCRIPT element
- *  or if the document has been loaded, then it appends SCRIPT and LINK elements
- *  to the HEAD and all other elements to the BODY.
+ *  or if the document has been loaded then it appends all new nodes to the BODY.
  *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/demo.xhtml>
  *  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
  * 
