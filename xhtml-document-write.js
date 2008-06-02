@@ -1,5 +1,5 @@
 /* 
- * XHTML documment.write() Support (v1.1.1) - Parses string argument into DOM nodes
+ * XHTML documment.write() Support (v1.1.2) - Parses string argument into DOM nodes
  *  appends them to the document immediately after the last loaded SCRIPT element
  *  or if the document has been loaded then it appends all new nodes to the BODY.
  *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/demo.xhtml>
@@ -45,14 +45,16 @@ catch(e){
 		
 	var htmlns = 'http://www.w3.org/1999/xhtml';
 	
-	//Providing a more simple HTML parser because John Resig's seems to not work in Safari 3
-	if(typeof HTMLParser == 'undefined'){
-		function HTMLParser(html, handler){
+	//Providing a rudamentary HTML parser if John Resig's is not provided
+	var _HTMLParser;
+	if(!window.HTMLParser){ //Safari 3: strangely HTMLParser is undefined, but window.HTMLParser is not
+		_HTMLParser = function(html, handler){
 			if(/^\s*<\//.test(html)) //temporary hack to get AdSense to work while getting full HTMLParser to work
 				return;
 			var elMatches = html.match(/<(\w+)([^>]*?)\/?>(?:\s*<\/\1>)?\s*$/i);
-			if(!elMatches)
+			if(!elMatches){
 				throw Error("In order to use this document.write() XHTML implementation with elements other than SCRIPT and LINK, you must include John Resig's HTML Parser library. String provided: " + html);
+			}
 			var tagName = elMatches[1];
 			var attrMatches = elMatches[2].match(/(\w+)=('|")(.*?)\2/g);
 			var attrs = [];
@@ -66,6 +68,10 @@ catch(e){
 				handler.start(tagName, attrs);
 		}
 	}
+	else {
+		_HTMLParser = window.HTMLParser;
+	}
+	
 
 	
 	document.write = function(htmlStr){
@@ -81,7 +87,7 @@ catch(e){
 			parentNode = refNode.parentNode;
 		}
 		
-		HTMLParser(htmlStr, {
+		_HTMLParser(htmlStr, {
 			start:function(tag, attrs, unary){
 				var el = document.createElementNS(htmlns, tag);
 				for(var i = 0; i < attrs.length; i++)
