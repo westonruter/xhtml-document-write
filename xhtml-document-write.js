@@ -1,5 +1,5 @@
 /* 
- * XHTML documment.write() Support (v1.1) - Parses string argument into DOM nodes
+ * XHTML documment.write() Support (v1.1.1) - Parses string argument into DOM nodes
  *  appends them to the document immediately after the last loaded SCRIPT element
  *  or if the document has been loaded then it appends all new nodes to the BODY.
  *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/demo.xhtml>
@@ -26,6 +26,8 @@
 
 try {
 	document.write('');
+	if(window.opera && document.documentElement.namespaceURI) //Opera doesn't seem to complain, so make it complain
+		throw Error();
 }
 catch(e){
 	(function(){
@@ -54,9 +56,11 @@ catch(e){
 			var tagName = elMatches[1];
 			var attrMatches = elMatches[2].match(/(\w+)=('|")(.*?)\2/g);
 			var attrs = [];
-			for(var i = 0; i < attrMatches.length; i++){
-				var attrParts = attrMatches[i].match(/(.+?)=('|")(.*?)\2/);
-				attrs.push({name:attrParts[1], value:attrParts[3]})
+			if(attrMatches){
+				for(var i = 0; i < attrMatches.length; i++){
+					var attrParts = attrMatches[i].match(/(.+?)=('|")(.*?)\2/);
+					attrs.push({name:attrParts[1], value:attrParts[3]})
+				}
 			}
 			if(handler.start)
 				handler.start(tagName, attrs);
