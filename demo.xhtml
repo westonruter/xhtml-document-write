@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-XHTML documment.write() Support (v1.0)
+XHTML documment.write() Support
  <http://code.google.com/p/shepherd-interactive/wiki/XHTMLDocumentWrite>
  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
 
@@ -50,7 +50,7 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		}
 		</style>
 		
-		<p><em style='color:red'>I'm still ironing out a few Safari issues with this implementation, so stay tuned.</em></p>
+		<font color="red">Needed: Safari 2, Minified version</font>
 		
 		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzled by the power and accuracy of their
 		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
@@ -71,24 +71,25 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		developed by <a href="http://ejohn.org/">John Resig</a> (one of my biggest inspirations and JavaScript heroes).
 		My solution, however, has a couple advantages as I see it. First his solution uses some regular expression hacks to attempt to make the HTML markup well-formed enough
 		for the browser's XML parser, but as he notes, it is not very robust. Secondly, John's solution relies on <code>innerHTML</code> which causes it to completely
-		fail in Safari 2. I'm trying a different approach (although it doesn't seem to work in Safari 2 either, and I don't have real access to it).
-		<!--I am attempting, however, to have <code>document.write()</code> parse the HTML itself to create the DOM nodes.--></p>
+		fail in Safari 2. I'm trying a different approach <big><big>(although it doesn't seem to work in Safari 2 either, and I don't have real access to it)</big></big>.
+		<!--I am attempting, however, to have <code>document.write()</code> parse the HTML itself to create the DOM nodes.</p>
 
-		<p>Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes and appends them to the
-		document immediately after the requesting <code>script</code> element if the DOM has not yet been completely loaded. If the DOM has been loaded,
-		then it appends the parsed nodes to the end of the <code>body</code>. I was using John's own John's <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
-		so that arbitrary HTML markup could be handled, but I can't seem to get his parser to work with the solution in Safari 3
+		<p>-->Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes;
+		if the DOM has not been completely loaded yet, it appends these DOM nodes to the
+		document immediately after the requesting <code>script</code> element; otherwise, it appends the parsed nodes to the end of the <code>body</code>.
+		I'm using John Resig's own <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
+		so that arbitrary HTML markup could be handled.<!--, but I can't seem to get his parser to work with the solution in Safari 3
 		(if you include his library or define a global <code>HTMLParser</code> function yourself, then this implementation will use it
 		instead of the very-limited parser that is included in the script;
 		try out his library so you can help diagnose the issue in Safari 3; and furthermore, see if you can figure out why
 		it fails in Safari 2 even without the use of <code>innerHTML</code>). Currently the parser included is able to 
 		can output any single empty or unary HTML element, such as <code>script</code> or <code>iframe</code> (so it's not practically much better
-		than John's solution as of now).
+		than John's solution as of now).-->
 		</p>
 
-		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as both <code>application/xhtml+xml</code>
-		and <code>text/html</code>, as in the case of MSIE. First what follows this paragraph is the canonical AdSense <code>script</code>
-		elements which will output an advertisement:</p>
+		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as either <code>application/xhtml+xml</code>
+		and <code>text/html</code>, as in the case of MSIE. First is the canonical AdSense <code>script</code>
+		elements which output an advertisement:</p>
 		
 		<script type="text/javascript">
 		google_ad_client = "pub-0540872133321296";
@@ -98,14 +99,22 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		google_ad_height = 125;
 		</script>
 		<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+	
+		<p>And to demonstrate handling arbitrary HTML elements with text and comment nodes:</p>
+		<blockquote>
+		<script type="text/javascript">
+		document.write("\u003Cp>\u003Cb>This is a paragraph that is \u003Ci>written out\u003C/i>\u003Cbr> using \u003Ccode>document.write()\u003C/code>! \u003C!--Yay!!!-->\u003C/b>\u003C/p>");
+		</script>
+		</blockquote>
 		
 		<p>And to illustrate the use of the Google AJAX APIs, the phrase “<strong>Hello world!</strong>” (loaded from an
-		<a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>)
+		<a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>,
+		whose calling <code>script</code> element is itself output by <code>document.write()</code>)
 		is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
 		then animated using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
 	
 		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
-		The completed load-state of the <code>sourceText</code> variable is then detected with this anonymous polling function:
+		The completed load-state of the <code>sourceText</code> variable in the external script is then detected with this anonymous polling function:
 		</p>
 
 <pre><code>(function(){
@@ -125,7 +134,6 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		document.write("\u003Cscript type='text/javascript' src='sourceText.js'\u003E\u003C/"+"script\u003E");
 		</script>
 		<script type="text/javascript">
-		//document.write("\u003Cb>This is the \u003Cem>Strangets\u003C/em> thing in the world!\u003C/b>");
 		
 		google.load('language', 1);
 		if(!window.jQuery)
