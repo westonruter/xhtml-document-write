@@ -1,25 +1,4 @@
 <?xml version="1.0"?>
-<!--
-XHTML documment.write() Support
- <http://code.google.com/p/shepherd-interactive/wiki/XHTMLDocumentWrite>
- by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-$Id: xhtml-document-write.js 7 2008-05-15 20:15:17Z westonruter $
-Copyright 2008, Shepherd Interactive. All rights reserved.
--->
 <!DOCTYPE html><!-- XHTML5 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -30,8 +9,6 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		
 		
 		<!-- BEGIN *********************************-->
-		
-		<!--<script type = "text/javascript" src="htmlparser.js"></script>-->
 		<script type="text/javascript" src="xhtml-document-write.js"></script>
 		
 		<style type="text/css">
@@ -48,9 +25,10 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 			background-color:transparent;
 			text-decoration:blink;
 		}
+		#xhtml-document-write-issue-safari-2:target {
+			color:red;
+		}
 		</style>
-		
-		<font color="red">Needed: Safari 2, Minified version</font>
 		
 		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzled by the power and accuracy of their
 		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
@@ -67,24 +45,15 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		<code>document.write()</code> yourself, as <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> does.
 		</p>
 	
-		<p><strong>Update:</strong> When I set out to do this, somehow I completely missed a <a href="http://ejohn.org/blog/xhtml-documentwrite-and-adsense/">solution</a>
-		developed by <a href="http://ejohn.org/">John Resig</a> (one of my biggest inspirations and JavaScript heroes).
-		My solution, however, has a couple advantages as I see it. First his solution uses some regular expression hacks to attempt to make the HTML markup well-formed enough
+		<p>When I set out to do this, somehow I completely missed a <a href="http://ejohn.org/blog/xhtml-documentwrite-and-adsense/">solution</a>
+		developed by <a href="http://ejohn.org/">John Resig</a> (one of my biggest JavaScript heroes).
+		My solution, however, has a couple advantages as I see it. First, his solution uses some regular expression hacks to attempt to make the HTML markup well-formed enough
 		for the browser's XML parser, but as he notes, it is not very robust. Secondly, John's solution relies on <code>innerHTML</code> which causes it to completely
-		fail in Safari 2. I'm trying a different approach <big><big>(although it doesn't seem to work in Safari 2 either, and I don't have real access to it)</big></big>.
-		<!--I am attempting, however, to have <code>document.write()</code> parse the HTML itself to create the DOM nodes.</p>
-
-		<p>-->Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes;
+		fail in Safari 2 (although this implementation also fails for an <a href="#xhtml-document-write-issue-safari-2">unknown reason</a>). I'm trying a different approach. Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes;
 		if the DOM has not been completely loaded yet, it appends these DOM nodes to the
 		document immediately after the requesting <code>script</code> element; otherwise, it appends the parsed nodes to the end of the <code>body</code>.
 		I'm using John Resig's own <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
-		so that arbitrary HTML markup could be handled.<!--, but I can't seem to get his parser to work with the solution in Safari 3
-		(if you include his library or define a global <code>HTMLParser</code> function yourself, then this implementation will use it
-		instead of the very-limited parser that is included in the script;
-		try out his library so you can help diagnose the issue in Safari 3; and furthermore, see if you can figure out why
-		it fails in Safari 2 even without the use of <code>innerHTML</code>). Currently the parser included is able to 
-		can output any single empty or unary HTML element, such as <code>script</code> or <code>iframe</code> (so it's not practically much better
-		than John's solution as of now).-->
+		so that arbitrary HTML markup could be handled.
 		</p>
 
 		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as either <code>application/xhtml+xml</code>
@@ -161,9 +130,15 @@ Copyright 2008, Shepherd Interactive. All rights reserved.
 		});
 		</script>
 		
-		<p>As it is, the demos work at least in <strong>Firefox 2/3</strong>, <strong>Opera 9.26</strong>, and <strong>Safari 3</strong>;
-		it currently does <em>not</em> work in Safari 2.
-		Please comment with any suggestions or feedback!</p>
+		<p>This <code>document.write()</code> implementation is known to work at least <strong>Firefox 2/3</strong>, <strong>Opera 9.26</strong>, and <strong>Safari 3</strong>.
+		It will work in Internet Explorer, of course, since the document must be served as <code>text/html</code> to be viewed and so it will already have <code>document.write()</code>.
+		<span id='xhtml-document-write-issue-safari-2'>For some unknown reason, this currently does <em>not</em> work in <strong>Safari 2</strong>: 
+		the error "<samp>TypeError - Undefined value</samp>" is raised on line 12, where a <code>script</code> element loads <code>xhtml-document-write.js</code>.
+		Any help would be much appreciated.</span></p>
+		
+		<p>Download the <a href="xhtml-document-write.js">script source</a> or the <a href="xhtml-document-write.min.js">minified version</a>.</p>
+		
+		<p>Please comment with any suggestions or feedback!</p>
 		
 		<!-- END *********************************-->
 	
