@@ -53,7 +53,7 @@
 		if the DOM has not been completely loaded yet, it appends these DOM nodes to the
 		document immediately after the requesting <code>script</code> element; otherwise, it appends the parsed nodes to the end of the <code>body</code>.
 		I'm using John Resig's own <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
-		so that arbitrary HTML markup could be handled.
+		so that arbitrary HTML markup can be handled.
 		</p>
 
 		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as either <code>application/xhtml+xml</code>
@@ -100,7 +100,7 @@
 		<script type="text/javascript">
 		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
 		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
-		document.write("\u003Cscript type='text/javascript' src='sourceText.js'\u003E\u003C/"+"script\u003E");
+		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
 		</script>
 		<script type="text/javascript">
 		
@@ -134,9 +134,10 @@
 		It will work in Internet Explorer, of course, since the document must be served as <code>text/html</code> to be viewed and so it will already have <code>document.write()</code>.
 		<span id='xhtml-document-write-issue-safari-2'>For some unknown reason, this currently does <em>not</em> work in <strong>Safari 2</strong>: 
 		the error "<samp>TypeError - Undefined value</samp>" is raised on line 12, where a <code>script</code> element loads <code>xhtml-document-write.js</code>.
-		Any help would be much appreciated.</span></p>
+		Any help would be much appreciated. As a workaround in the mean time, simply serve documents as <code>text/html</code> for Safari 2 browsers.</span></p>
 		
-		<p>Download the <a href="xhtml-document-write.js">script source</a> or the <a href="xhtml-document-write.min.js">minified version</a>.</p>
+		<p>Download the <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">script source</a>
+		or the <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.min.js">minified version</a>.</p>
 		
 		<p>Please comment with any suggestions or feedback!</p>
 		
