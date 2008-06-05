@@ -2,151 +2,18 @@
 <!DOCTYPE html><!-- XHTML5 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>XHTML document.write() Support Demo</title>
+		<meta http-equiv="refresh" content="1;url=http://weston.ruter.net/projects/xhtml-document-write/" />
+		<title>Document Moved</title>
 	</head>
 	<body>
-		<h1>XHTML <code>document.write()</code> Support Demo</h1>
+		<h1>Moved: XHTML <code>document.write()</code> Support</h1>
 		
+		<p>Moved permenantly to: <a href="http://weston.ruter.net/projects/xhtml-document-write/">http://weston.ruter.net/projects/xhtml-document-write/</a></p>
 		
-		<!-- BEGIN *********************************-->
-		<script type="text/javascript" src="xhtml-document-write.js"></script>
-		
-		<style type="text/css">
-		#demo-result {
-			background-color:#C0FFC0;
-			vertical-align:middle;
-			font-weight:bold;
-			text-decoration:none;
-			white-space:nowrap;
-		}
-		#demo-result.loading {
-			font-style:italic;
-			color:gray;
-			background-color:transparent;
-			text-decoration:blink;
-		}
-		#xhtml-document-write-issue-safari-2:target {
-			color:red;
-		}
-		</style>
-		
-		<p>Google's AJAX APIs provide some incredible tools which equip web developers to do some amazing things. I've lately been dazzled by the power and accuracy of their
-		<a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and also of the performance and convenience afforded
-		by their <a href="http://code.google.com/apis/ajaxlibs/">AJAX Libraries API</a>. The only issue I have with their APIs is that the fundamental 
-		<code>google.load()</code> function uses <code>document.write()</code> to output the necessary <code>script</code> elements to the DOM,
-		which doesn't even appear to be necessary since <code>google.setOnLoadCallback()</code> executes after the scripts are loaded without using <code>document.write()</code>
-		(but instead appended document with DOM methods). And the reason why using <code>document.write()</code> is bad, of course, is that it is not available when in XHTML.</p>
-		
-		<p>Likewise, Google's AdSense program provides a great way for web authors to make get some compensation for their hard work.
-		But it too relies on <code>document.write()</code> to output the necessary <code>iframe</code> element to display the
-		advertisement. This has been <a href="http://en.wikipedia.org/wiki/AdSense#XHTML_Compatibility">well noted</a>, and a <a href="http://www.456bereastreet.com/archive/200409/content_negotiation_adsense_and_comments/">workaround</a> has been
-		developed which utilizes the an <code>object</code> element. However, there is another solution which enables AdSense to work in XHTML
-		without any HTML workaround, and which allows web authors to use the Google Ajax APIs in XHTML pages: simply define and implement
-		<code>document.write()</code> yourself, as <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">this script</a> does.
-		</p>
-	
-		<p>When I set out to do this, somehow I completely missed a <a href="http://ejohn.org/blog/xhtml-documentwrite-and-adsense/">solution</a>
-		developed by <a href="http://ejohn.org/">John Resig</a> (one of my biggest JavaScript heroes).
-		My solution, however, has a couple advantages as I see it. First, his solution uses some regular expression hacks to attempt to make the HTML markup well-formed enough
-		for the browser's XML parser, but as he notes, it is not very robust. Secondly, John's solution relies on <code>innerHTML</code> which causes it to completely
-		fail in Safari 2 (although this implementation also fails for an <a href="#xhtml-document-write-issue-safari-2">unknown reason</a>). I'm trying a different approach. Instead of using <code>innerHTML</code>, this implementation of <code>document.write()</code> parses the string argument of HTML markup into DOM nodes;
-		if the DOM has not been completely loaded yet, it appends these DOM nodes to the
-		document immediately after the requesting <code>script</code> element; otherwise, it appends the parsed nodes to the end of the <code>body</code>.
-		I'm using John Resig's own <a href="http://ejohn.org/blog/pure-javascript-html-parser/">HTML Parser</a>
-		so that arbitrary HTML markup can be handled.
-		</p>
-
-		<p>Now for <strong>some examples</strong>, which of course will work when the document is served as either <code>application/xhtml+xml</code>
-		and <code>text/html</code>, as in the case of MSIE. First is the canonical AdSense <code>script</code>
-		elements which output an advertisement:</p>
-		
-		<script type="text/javascript">
-		google_ad_client = "pub-0540872133321296";
-		/* 125x125, created 6/1/08 */
-		google_ad_slot = "9966627566";
-		google_ad_width = 125;
-		google_ad_height = 125;
-		</script>
-		<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
-	
-		<p>And to demonstrate handling arbitrary HTML elements with text and comment nodes:</p>
-		<blockquote>
-		<script type="text/javascript">
-		document.write("\u003Cp>\u003Cb>This is a paragraph that is \u003Ci>written out\u003C/i>\u003Cbr> using \u003Ccode>document.write()\u003C/code>! \u003C!--Yay!!!-->\u003C/b>\u003C/p>");
-		</script>
-		</blockquote>
-		
-		<p>And to illustrate the use of the Google AJAX APIs, the phrase “<strong>Hello world!</strong>” (loaded from an
-		<a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js">external script</a>,
-		whose calling <code>script</code> element is itself output by <code>document.write()</code>)
-		is translated into Spanish via Google's <a href="http://code.google.com/apis/ajaxlanguage/">AJAX Language API</a> and
-		then animated using <a href="http://jquery.com/">jQuery</a>: <span id="demo-result" class='loading'>Loading...</span></p>
-	
-		<p>The Language API is loaded via <code>google.load('language', 1)</code> and its completed load-state is detected by <code>google.setOnLoadCallback()</code>.
-		The completed load-state of the <code>sourceText</code> variable in the external script is then detected with this anonymous polling function:
-		</p>
-
-<pre><code>(function(){
-    if(window.sourceText){
-        //ready to work!
-    }
-    else
-        setTimeout(arguments.callee, 10);
-})();</code></pre>
-	
-		<!--<p>This document may be served as either <code>application/xhtml+xml</code> or <code>text/html</code> (i.e. for IE).</p>-->
-		
-		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
-		<script type="text/javascript">
-		//The sourceText variable is loaded by loading the following script. This demonstrates how to detect when a script has been
-		//  asyncronously loaded if the library does not support something like google.setOnLoadCallback()
-		document.write("\u003Cscript type='text/javascript' src='http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/sourceText.js'\u003E\u003C/"+"script\u003E");
-		</script>
-		<script type="text/javascript">
-		
-		google.load('language', 1);
-		if(!window.jQuery)
-			google.load('jquery', 1);
-		google.setOnLoadCallback(function() {
-			//This anonymous polling function can be used to check every 10ms whether the sourceText variable has been loaded
-			(function(){
-				if(window.sourceText){
-					google.language.translate("Hello world!", "", "es", function(result){
-						var span = document.getElementById('demo-result');
-						span.removeChild(span.firstChild);
-						span.appendChild(document.createTextNode(result.translation));
-						span.className = "";
-						
-						$("#demo-result").animate({
-							//fontSize: "2em",
-							paddingLeft:"20px",
-							paddingRight:"20px"
-						});
-					});
-				}
-				else //recursive call to check again
-					setTimeout(arguments.callee, 1000);
-			})();
-		});
-		</script>
-		
-		<p>This <code>document.write()</code> implementation is known to work at least in <strong>Firefox 2/3</strong>, <strong>Opera 9.26</strong>, and <strong>Safari 3</strong>.
-		It will work in Internet Explorer, of course, since the document must be served as <code>text/html</code> to be viewed and so it will already have <code>document.write()</code>.
-		<span id='xhtml-document-write-issue-safari-2'>For some unknown reason, this currently does <em>not</em> work in <strong>Safari 2</strong>: 
-		the error "<samp>TypeError - Undefined value</samp>" is raised on line 12, where a <code>script</code> element loads <code>xhtml-document-write.js</code>.
-		Any help would be much appreciated. As a workaround in the mean time, simply serve documents as <code>text/html</code> for Safari 2 browsers.</span></p>
-		
-		<p>Download the <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.js">script source</a>
-		or the <a href="http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/xhtml-document-write.min.js">minified version</a>.</p>
-		
-		<p>Please comment with any suggestions or feedback!</p>
-		
-		<!-- END *********************************-->
-	
 		<hr />
 		<address>
 			<a href="http://weston.ruter.net/">Weston Ruter</a>, <a href="http://www.shepherd-interactive.com/">Shepherd Interactive</a><br />
-			May 2008
+			June 2008
 		</address>
 	</body>
 </html>
