@@ -1,9 +1,9 @@
 /* 
- * XHTML documment.write() Support (v1.2) - Parses string argument into DOM nodes
+ * XHTML documment.write() Support (v1.5) - Parses string argument into DOM nodes
  *     appends them to the document immediately after the last loaded SCRIPT element,
  *     or to the BODY if the document has been loaded.
  *  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
- *  <http://shepherd-interactive.googlecode.com/svn/trunk/xhtml-document-write/>
+ *  <http://weston.ruter.net/projects/xhtml-document-write/>
  * 
  * Copyright 2008, Shepherd Interactive. Licensed under GPL <http://creativecommons.org/licenses/GPL/2.0/>
  * Incorporates HTML Parser By John Resig <http://ejohn.org/files/htmlparser.js>
@@ -35,42 +35,74 @@ catch(e){
 		win.addEventListener('load', markLoaded, false);
 	if(win.attachEvent)
 		win.attachEvent('onload', markLoaded);
-		
 
-	doc.write = function(htmlStr){
-		var head = doc.getElementsByTagNameNS(htmlns, 'head')[0];
-		var body = doc.getElementsByTagNameNS(htmlns, 'body')[0];
-		
-		//Find where new elements will be placed
-		var parentNode = body ? body : head;
-		var refNode = null;
+	//Any script element IDs specified here will cause them to be ignored
+	var scriptIgnoreIDs = makeMap("_firebugConsoleInjector,_firebugConsole");
+	
+	var parentNode;
+	var lastScript;
+	var parser;
+
+	doc.write = function(str){
+		//Find where new nodes will be placed
+		var thisScript;
 		if(!isDOMLoaded){
+			//Get the last script element, the one that is calling document.write()
 			var scripts = doc.getElementsByTagNameNS(htmlns, 'script');
-			refNode = scripts[scripts.length-1];
-			parentNode = refNode.parentNode;
+			for(var i = scripts.length-1; i >= 0; i--){
+				if(!scripts[i].id || !scriptIgnoreIDs[scripts[i].id]){
+					thisScript = scripts[i];
+					break;
+				}
+			}
+			
+			//Set where new nodes will be appended to
+			if(!parentNode){
+				parentNode = thisScript.parentNode;
+			}
+			
+			//If we're in the same script element, then continue where left off, 
+			//  but if calling from new script element, reset the parentNode.
+			//  It will be better in the future to actually keep track of the 
+			//  nodes in between the two script elements and to move them to be
+			//  inside of any HTML fragment that had yet to be closed.
+			if(thisScript != lastScript) {
+				parentNode = thisScript.parentNode;
+				parser = null; //destroy the parser
+				lastScript = thisScript;
+			}
+		}
+		else if(!parentNode) {
+			parentNode = doc.getElementsByTagNameNS(htmlns, 'body')[0];
 		}
 		
-		HTMLParser(htmlStr, {
-			start:function(tag, attrs, unary){
-				var el = doc.createElementNS(htmlns, tag);
-				for(var i = 0; i < attrs.length; i++)
-					el.setAttribute(attrs[i].name, attrs[i].value);
-				
-				parentNode.appendChild(el);
-				if(!unary)
-					parentNode = el;
-			},
-			end:function(tag){
-				parentNode = parentNode.parentNode;
-			},
-			chars:function(text){
-				if(text)
-					parentNode.appendChild(doc.createTextNode(text));
-			},
-			comment:function(text){
-				parentNode.appendChild(doc.createComment(text));
-			}
-		});
+		if(parser){
+			parser.parse(str);
+		}
+		else {
+			parser = new HTMLParser(str, {
+				start:function(tag, attrs, unary){
+					var el = doc.createElementNS(htmlns, tag);
+					for(var i = 0; i < attrs.length; i++)
+						el.setAttribute(attrs[i].name, attrs[i].value);
+					
+					parentNode.appendChild(el);
+					if(!unary)
+						parentNode = el;
+				},
+				end:function(tag){
+					parentNode = parentNode.parentNode;
+				},
+				chars:function(text){
+					if(text){
+						parentNode.appendChild(doc.createTextNode(text));
+					}
+				},
+				comment:function(text){
+					parentNode.appendChild(doc.createComment(text));
+				}
+			});
+		}
 	};
 	
 	
@@ -100,97 +132,108 @@ catch(e){
 	// Special Elements (can contain anything)
 	var special = makeMap("script,style");
 
+	//document.write(): this HTMLParser function has been turned into an object which allows
+	//  for incremental parsing via HTMLParser.parse(moreHTML). This conversion was done late
+	//  at night so it surely has areas of stylistic and functional improvement
 	var HTMLParser /*= this.HTMLParser*/ = function( html, handler ) {
-		var index, chars, match, stack = [], last = html;
-		stack.last = function(){
+		this.index = null;
+		this.chars = null;
+		this.match = null;
+		this.stack = [];
+		this.stack.last = function(){
 			return this[ this.length - 1 ];
+		}
+		var _this = this; //make this HTMLParser instance available to callback closures
+		
+		//parse method added for document.write()
+		this.parse = function(html){
+			this.last = this.html = html;
+			while ( this.html ) {
+				this.chars = true;
+	
+				// Make sure we're not in a script or style element
+				if ( !this.stack.last() || !special[ this.stack.last() ] ) {
+	
+					// Comment
+					if ( this.html.indexOf("<!--") == 0 ) {
+						this.index = this.html.indexOf("-->");
+		
+						if ( this.index >= 0 ) {
+							if ( handler.comment )
+								handler.comment( this.html.substring( 4, this.index ) );
+							this.html = this.html.substring( this.index + 3 );
+							this.chars = false;
+						}
+		
+					// end tag
+					} else if ( this.html.indexOf("</") == 0 ) {
+						this.match = this.html.match( endTag );
+		
+						if ( this.match ) {
+							this.html = this.html.substring( this.match[0].length );
+							this.match[0].replace( endTag, parseEndTag );
+							this.chars = false;
+						}
+		
+					// start tag
+					} else if ( this.html.indexOf("<") == 0 ) {
+						this.match = this.html.match( startTag );
+		
+						if ( this.match ) {
+							this.html = this.html.substring( this.match[0].length );
+							this.match[0].replace( startTag, parseStartTag );
+							this.chars = false;
+						}
+					}
+	
+					if ( this.chars ) {
+						this.index = this.html.indexOf("<");
+						
+						var text = this.index < 0 ? this.html : this.html.substring( 0, this.index );
+						this.html = this.index < 0 ? "" : this.html.substring( this.index );
+						
+						if ( handler.chars )
+							handler.chars( text );
+					}
+	
+				} else {
+					this.html = this.html.replace(new RegExp("(.*)<\/" + this.stack.last() + "[^>]*>"), function(all, text){
+						text = text.replace(/<!--(.*?)-->/g, "$1")
+							.replace(/<!\[CDATA\[(.*?)]]>/g, "$1");
+	
+						if ( handler.chars )
+							handler.chars( text );
+	
+						return "";
+					});
+	
+					parseEndTag( "", this.stack.last() );
+				}
+	
+				if ( this.html == this.last )
+					throw "Parse Error: " + this.html;
+				this.last = this.html;
+			}
 		};
 
-		while ( html ) {
-			chars = true;
-
-			// Make sure we're not in a script or style element
-			if ( !stack.last() || !special[ stack.last() ] ) {
-
-				// Comment
-				if ( html.indexOf("<!--") == 0 ) {
-					index = html.indexOf("-->");
-	
-					if ( index >= 0 ) {
-						if ( handler.comment )
-							handler.comment( html.substring( 4, index ) );
-						html = html.substring( index + 3 );
-						chars = false;
-					}
-	
-				// end tag
-				} else if ( html.indexOf("</") == 0 ) {
-					match = html.match( endTag );
-	
-					if ( match ) {
-						html = html.substring( match[0].length );
-						match[0].replace( endTag, parseEndTag );
-						chars = false;
-					}
-	
-				// start tag
-				} else if ( html.indexOf("<") == 0 ) {
-					match = html.match( startTag );
-	
-					if ( match ) {
-						html = html.substring( match[0].length );
-						match[0].replace( startTag, parseStartTag );
-						chars = false;
-					}
-				}
-
-				if ( chars ) {
-					index = html.indexOf("<");
-					
-					var text = index < 0 ? html : html.substring( 0, index );
-					html = index < 0 ? "" : html.substring( index );
-					
-					if ( handler.chars )
-						handler.chars( text );
-				}
-
-			} else {
-				html = html.replace(new RegExp("(.*)<\/" + stack.last() + "[^>]*>"), function(all, text){
-					text = text.replace(/<!--(.*?)-->/g, "$1")
-						.replace(/<!\[CDATA\[(.*?)]]>/g, "$1");
-
-					if ( handler.chars )
-						handler.chars( text );
-
-					return "";
-				});
-
-				parseEndTag( "", stack.last() );
-			}
-
-			if ( html == last )
-				throw "Parse Error: " + html;
-			last = html;
-		}
-		
 		// Clean up any remaining tags
-		parseEndTag();
+		//parseEndTag(); //for document.write(), do not do this!
 
 		function parseStartTag( tag, tagName, rest, unary ) {
 			if ( block[ tagName ] ) {
-				while ( stack.last() && inline[ stack.last() ] ) {
-					parseEndTag( "", stack.last() );
+				while ( _this.stack.last() && inline[ _this.stack.last() ] ) {
+					parseEndTag( "", _this.stack.last() );
 				}
 			}
 
-			if ( closeSelf[ tagName ] && stack.last() == tagName ) {
+			if ( closeSelf[ tagName ] && _this.stack.last() == tagName ) {
 				parseEndTag( "", tagName );
 			}
 
 			unary = empty[ tagName ] || !!unary;
 
 			if ( !unary )
-				stack.push( tagName );
+				_this.stack.push( tagName );
 			
 			if ( handler.start ) {
 				var attrs = [];
@@ -220,20 +263,25 @@ catch(e){
 				
 			// Find the closest opened tag of the same type
 			else
-				for ( var pos = stack.length - 1; pos >= 0; pos-- )
-					if ( stack[ pos ] == tagName )
+				for ( var pos = _this.stack.length - 1; pos >= 0; pos-- )
+					if ( _this.stack[ pos ] == tagName )
 						break;
 			
 			if ( pos >= 0 ) {
 				// Close all the open elements, up the stack
-				for ( var i = stack.length - 1; i >= pos; i-- )
-					if ( handler.end )
-						handler.end( stack[ i ] );
+				for ( var i = _this.stack.length - 1; i >= pos; i-- )
+					if ( handler.end ){
+						//console.warn(_this.stack[ i ])
+						handler.end( _this.stack[ i ] );
+					}
 				
 				// Remove the open elements from the stack
-				stack.length = pos;
+				_this.stack.length = pos;
 			}
 		}
+		
+		//This gets everything going
+		this.parse(html);
 	};
 
 	function makeMap(str){

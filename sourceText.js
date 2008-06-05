@@ -1,1 +1,0 @@
-var sourceText = "Hello world!";
