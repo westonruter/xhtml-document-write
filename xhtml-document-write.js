@@ -1,5 +1,5 @@
 /* 
- * XHTML documment.write() Support (v1.5.1) - Parses string argument into DOM nodes
+ * XHTML documment.write() Support (v1.5.2) - Parses string argument into DOM nodes
  *     appends them to the document immediately after the last loaded SCRIPT element,
  *     or to the BODY if the document has been loaded.
  *  by Weston Ruter, Shepherd Interactive <http://www.shepherd-interactive.com/>
@@ -206,7 +206,7 @@ catch(e){
 				parseEndTag( "", stack.last() );
 			}
 
-			if ( html == last )
+			if ( html && html == last )
 				throw "Parse Error: " + html;
 			last = html;
 		}
