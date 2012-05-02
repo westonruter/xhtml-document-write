@@ -1,6 +1,6 @@
 <h1>XHTML <code>document.write()</code> Support</h1>
 
-<p><em>Note: this code is very old and is no longer supported and really isn't needed since <code>application/xhtml+xml</code> is dead. This writeup and code is left here for historical reasons. Only <a href="http://westonruter.github.com/xhtml-document-write/example.xhtml">one example</a> still works due to changes in Google's API offerings.</em></p>
+<p><em>Note: this code is very old and is no longer supported and really isn't needed since <code>application/xhtml+xml</code> is dead. This writeup and code is left here for historical reasons. Only <a href="http://westonruter.github.com/xhtml-document-write/example.xhtml">one example</a> still works due to changes in Google's API offerings. I've also stored the <a href="http://westonruter.github.com/xhtml-document-write/wordpress-comment-archive.html">old comments</a> I got on my blog post before I started redirecting here to GitHub.</em></p>
 
 <hr>
 
