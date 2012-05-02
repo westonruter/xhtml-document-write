@@ -20,7 +20,7 @@
 <h2>Browser Support</h2>
 <p>This <code>document.write()</code> implementation is known to work at least in <strong>Firefox 2/3</strong>, <strong>Opera 9.26</strong>, and <strong>Safari 3</strong>. It will work in Internet Explorer, of course, since the document must be served as <code>text/html</code> to be viewed and so it will already have <code>document.write()</code>. <span id='xhtml-document-write-issue-safari-2'>For some unknown reason, this currently does <em>not</em> work in <strong>Safari 2</strong>:  the error “<samp>TypeError - Undefined value</samp>” is raised on the line of HTML where a <code>script</code> element loads <code>xhtml-document-write.js</code>. Any help would be much appreciated. As a workaround in the mean time, simply serve documents as <code>text/html</code> for Safari 2 browsers.</span></p>
 
-<h2>Supported usages:</h2>
+<h2>Supported Usages</h2>
 <p>There are three common usages of <code>document.write()</code> in the wild of HTML, and the first two are currently supported:</p>
 <ol>
 <li>
