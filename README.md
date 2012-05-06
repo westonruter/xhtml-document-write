@@ -53,3 +53,7 @@ Hello &lt;i>World&lt;/i>!
  &lt;/bar>
 &lt;/foo>
 </code></pre>
+
+<hr>
+<p>Developed by <a href="http://westonruter.github.com/" rel="author">Weston Ruter</a> (<a href="https://twitter.com/westonruter">@westonruter</a>).</p>
+
