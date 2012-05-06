@@ -55,5 +55,5 @@ Hello &lt;i>World&lt;/i>!
 </code></pre>
 
 <hr>
-<p>Developed by <a href="http://westonruter.github.com/" rel="author">Weston Ruter</a> (<a href="https://twitter.com/westonruter">@westonruter</a>).</p>
+<p>Developed by <a href="https://plus.google.com/113853198722136596993" rel="author">Weston Ruter</a> (<a href="https://twitter.com/westonruter">@westonruter</a>).</p>
 
