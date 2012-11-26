@@ -242,7 +242,8 @@ catch(e){
 					
 					attrs.push({
 						name: name,
-						value: value,
+						// attributes should be "unescaped", since browsers will automatically escape them when adding into DOM with setAttribute
+						value: value.replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'),
 						escaped: value.replace(/(^|[^\\])"/g, '$1\\\"') //"
 					});
 				});
